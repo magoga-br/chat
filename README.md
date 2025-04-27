@@ -1,6 +1,6 @@
 <h1 align="center">💬 Chat em Tempo Real</h1>
 
-<h2 align="center">Acesse o <a href="https://chat-frontend-2dvg.onrender.com" target=”_blank”>chat<a/></h2>
+<h2 align="center">Acesse o <a href="https://chat-frontend-2dvg.onrender.com" target="_blank">chat<a/></h2>
 
 <p align="center">
   <img src="assets/images/image.png" alt="Chat Banner" width="100%"/>
