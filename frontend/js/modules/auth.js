@@ -4,7 +4,7 @@ function AuthModule() {
   let loginInput, loginPassword, registerInput, registerPassword;
 
   // In-memory user store (would be replaced with proper backend in production)
-  const users = [{ name: "admin", password: "ratogordo" }];
+  const users = [{ name: "admin", password: "magoga" }];
 
   // Current user data
   const user = {
@@ -57,6 +57,7 @@ function AuthModule() {
     }
 
     try {
+      console.log("[LOGIN] Enviando para:", getBackendUrl() + "/login");
       const response = await fetch(getBackendUrl() + "/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -84,6 +85,7 @@ function AuthModule() {
       );
       showNotification(`Bem-vindo, ${username}!`, "success");
     } catch (err) {
+      console.error("[LOGIN] Erro:", err);
       showNotification("Erro de conexão com o servidor", "error");
     }
   };
@@ -106,6 +108,7 @@ function AuthModule() {
     }
 
     try {
+      console.log("[REGISTER] Enviando para:", getBackendUrl() + "/register");
       const response = await fetch(getBackendUrl() + "/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -129,6 +132,7 @@ function AuthModule() {
       // Switch to login form
       showLoginForm();
     } catch (err) {
+      console.error("[REGISTER] Erro:", err);
       showNotification("Erro de conexão com o servidor", "error");
     }
   };
