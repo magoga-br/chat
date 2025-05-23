@@ -42,7 +42,7 @@ function AuthModule() {
     if (registerForm) registerForm.addEventListener("submit", handleRegister);
     if (loginLink) loginLink.addEventListener("click", showLoginForm);
     if (registerLink) registerLink.addEventListener("click", showRegisterForm);
-Conectando ao servidor...
+
     // NOVO: Se houver usuário salvo, dispara evento de login automático
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
