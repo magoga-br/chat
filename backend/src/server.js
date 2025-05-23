@@ -41,7 +41,10 @@ pool.connect((err, client, release) => {
 // Create HTTP server for potential future expansion
 const server = http.createServer((req, res) => {
   // Adiciona CORS para permitir requisições do frontend local e produção
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://magoga-chat.vercel.app"
+  );
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") {
