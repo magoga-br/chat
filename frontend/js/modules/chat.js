@@ -77,9 +77,6 @@ function ChatModule() {
       websocket.close();
     }
 
-    // Show connecting message
-    appendSystemMessage("Conectando ao servidor...");
-
     // Sempre usar o backend da Render em produção
     let wsUrl;
     if (window.location.hostname === "localhost") {
@@ -143,7 +140,6 @@ function ChatModule() {
 
   const handleWebSocketError = () => {
     console.error("WebSocket error");
-    appendSystemMessage("Erro de conexão com o servidor.");
     updateConnectionStatus("error");
   };
 
@@ -154,12 +150,6 @@ function ChatModule() {
     if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
       reconnectAttempts++;
       const delay = Math.min(1000 * reconnectAttempts, 5000);
-
-      appendSystemMessage(
-        `Desconectado do servidor. Tentando reconectar em ${
-          delay / 1000
-        } segundos...`
-      );
 
       setTimeout(() => {
         if (document.visibilityState === "visible") {

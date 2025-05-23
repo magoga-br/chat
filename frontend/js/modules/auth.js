@@ -42,6 +42,19 @@ function AuthModule() {
     if (registerForm) registerForm.addEventListener("submit", handleRegister);
     if (loginLink) loginLink.addEventListener("click", showLoginForm);
     if (registerLink) registerLink.addEventListener("click", showRegisterForm);
+Conectando ao servidor...
+    // NOVO: Se houver usuário salvo, dispara evento de login automático
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      const userObj = JSON.parse(savedUser);
+      user.id = userObj.id;
+      user.name = userObj.name;
+      user.color = userObj.color;
+      user.avatar = userObj.avatar;
+      document.dispatchEvent(
+        new CustomEvent("auth:login-success", { detail: user })
+      );
+    }
   };
 
   // Handle login form submission
@@ -76,8 +89,8 @@ function AuthModule() {
       user.color = getRandomColor();
       user.avatar = generateAvatar(username);
 
-      // Save to session storage
-      sessionStorage.setItem("user", JSON.stringify(user));
+      // Save to localStorage
+      localStorage.setItem("user", JSON.stringify(user));
 
       // Show chat interface
       document.dispatchEvent(
@@ -135,6 +148,12 @@ function AuthModule() {
       console.error("[REGISTER] Erro:", err);
       showNotification("Erro de conexão com o servidor", "error");
     }
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    // Clear localStorage
+    localStorage.removeItem("user");
   };
 
   // UI helpers
