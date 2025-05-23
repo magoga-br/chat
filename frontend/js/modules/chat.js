@@ -318,3 +318,5 @@ function ChatModule() {
     initialize,
   };
 }
+
+export default ChatModule;
