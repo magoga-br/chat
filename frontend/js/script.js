@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const initializeWebSocket = () => {
-    websocket = new WebSocket("https://chat-9rs2.onrender.com");
+    websocket = new WebSocket("wss://chat-9rs2.onrender.com");
 
     websocket.onopen = () => {
       console.log("WebSocket connected");
