@@ -1,52 +1,139 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
+    <meta name="description" content="Chat em tempo real com WebSockets">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
     <link rel="stylesheet" href="./css/style.css">
-
-    <title>Chat</title>
+    <title>Chat App</title>
 </head>
-
 <body>
-
-    <section class="container">
-
-        <section class="login">
-            <h2>Login</h2>
-            <form class="login__form">
-                <input type="text" class="login__input" placeholder="Seu nome" required>
-                <button type="submit" class="login__button">Entrar</button>
-            </form>
-        </section>
-
-        <section class="chat">
-            <section class="chat__messages">
-
-                <!-- <div class="message--self">
-                    Hello, World
+    <div class="container">
+        <!-- Authentication Container -->
+        <div class="auth-container">
+            <!-- Login Form -->
+            <div class="form-container login" id="login-container">
+                <h2>Login</h2>
+                <form class="form-container__form" id="login-form">
+                    <div class="form-group">
+                        <label for="login-username">Nome de usuário</label>
+                        <input 
+                            type="text" 
+                            id="login-username"
+                            class="form-container__input login__input" 
+                            placeholder="Digite seu nome de usuário" 
+                            required 
+                            aria-label="Nome de usuário" 
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Senha</label>
+                        <input 
+                            type="password" 
+                            id="login-password"
+                            class="form-container__input login__password" 
+                            placeholder="Digite sua senha" 
+                            required 
+                            aria-label="Senha" 
+                        />
+                    </div>
+                    <button type="submit" class="form-container__button login__button">
+                        Entrar
+                    </button>
+                    <div class="form-footer">
+                        Não tem uma conta? <a class="register__link">Cadastre-se</a>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Register Form -->
+            <div class="form-container register hidden" id="register-container">
+                <h2>Cadastro</h2>
+                <form class="form-container__form" id="register-form">
+                    <div class="form-group">
+                        <label for="register-username">Nome de usuário</label>
+                        <input 
+                            type="text" 
+                            id="register-username"
+                            class="form-container__input register__input" 
+                            placeholder="Escolha um nome de usuário" 
+                            required 
+                            aria-label="Nome de usuário" 
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Senha</label>
+                        <input 
+                            type="password" 
+                            id="register-password"
+                            class="form-container__input register__password" 
+                            placeholder="Crie uma senha" 
+                            required 
+                            aria-label="Senha" 
+                        />
+                    </div>
+                    <button type="submit" class="form-container__button register__button">
+                        Cadastrar
+                    </button>
+                    <div class="form-footer">
+                        Já tem uma conta? <a class="login__link">Faça login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Chat Interface -->
+        <section class="chat hidden" aria-live="polite">
+            <!-- Chat Header -->
+            <header class="chat__header">
+                <div class="chat__title">Chat em Tempo Real</div>
+                
+                <div class="connection-info">
+                    <div class="connection-status">Conectando...</div>
+                    <div class="online-info">
+                        <span class="material-symbols-outlined" aria-hidden="true">group</span>
+                        <span class="chat__online-count">0</span> online
+                    </div>
                 </div>
-                <div class="message--other">
-                    <span class="message--sender">Fabricio</span>
-                    Olá, Mundo
-                </div> -->
-            </section>
-
+                
+                <div class="chat__actions">
+                    <button class="icon-button theme-toggle" aria-label="Alternar tema">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                    <div class="chat__user-info">
+                        <div class="user-avatar"></div>
+                        <span class="user-name"></span>
+                    </div>
+                    <button class="icon-button chat__logout" aria-label="Sair">
+                        <span class="material-symbols-outlined">logout</span>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Chat Messages -->
+            <section class="chat__messages" aria-label="Mensagens do chat"></section>
+            
+            <!-- Chat Form -->
             <form class="chat__form">
-                <input type="text" class="chat__input" placeholder="Digite uma mensagem" required>
-                <button type="submit" class="chat__button">
-                    <span class="material-symbols-outlined">send</span>
+                <input 
+                    type="text" 
+                    class="chat__input" 
+                    placeholder="Digite uma mensagem" 
+                    required 
+                    aria-label="Mensagem do chat"
+                >
+                <button type="submit" class="chat__button" aria-label="Enviar mensagem">
+                    <span class="material-symbols-outlined" aria-hidden="true">send</span>
                 </button>
             </form>
         </section>
-
-    </section>
-
-    <script src="js/script.js""></script>
+    </div>
+    
+    <!-- JavaScript Modules -->
+    <script src="js/modules/auth.js"></script>
+    <script src="js/modules/chat.js"></script>
+    <script src="js/modules/ui.js"></script>
+    <script src="js/app.js"></script>
 </body>
-
 </html>

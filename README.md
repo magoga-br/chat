@@ -1,89 +1,137 @@
-<h1 align="center">💬 Chat em Tempo Real</h1>
+# Enhanced Chat Application
 
-<h2 align="center">Acesse o <a href="https://chat-frontend-2dvg.onrender.com" target="_blank">chat<a/></h2>
+A modern, real-time chat application built with vanilla JavaScript, WebSockets, and Node.js.
 
-<p align="center">
-  <img src="assets/images/image.png" alt="Chat Banner" width="100%"/>
-</p>
+## Features
 
-<p align="center">
-  Projeto de <b>chat em tempo real</b> com <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="24" height="24" alt="Node.js"/> Node.js, <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="24" height="24" alt="JavaScript"/> JavaScript e <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="24" height="24" alt="HTML5"/> HTML5.
-</p>
+- **Real-time messaging** with WebSocket connections
+- **User authentication** with login/register functionality
+- **Modern UI** with light/dark theme support
+- **Responsive design** for mobile and desktop
+- **Connection status** indicators and auto-reconnection
+- **Message timestamps** and user avatars
+- **Notification system** for user feedback
+- **Rate limiting** to prevent spam
+- **Accessibility** features with ARIA support
 
----
+## Tech Stack
 
-## ✨ Descrição
+- **Frontend**: HTML5, CSS3, Vanilla JavaScript
+- **Backend**: Node.js, WebSocket (ws library)
+- **Deployment**: Vercel
 
-Este projeto é um chat em tempo real, com frontend em HTML, CSS e JavaScript puro, e backend em Node.js utilizando WebSocket. Permite que múltiplos usuários conversem simultaneamente de forma simples e rápida.
+## Project Structure
 
----
+            chat/
+            ├── frontend/
+            │   ├── css/
+            │   │   └── style.css          
+            │   ├── js/
+            │   │   ├── app.js            
+            │   │   └── modules/
+            │   │       ├── auth.js        
+            │   │       ├── chat.js        
+            │   │       └── ui.js          
+            │   ├── images/
+            │   │   └── background.png     
+            │   └── index.html             
+            ├── backend/
+            │   ├── src/
+            │   │   └── server.js          
+            │   └── package.json           
+            ├── vercel.json                
+            └── README.md                  
 
-## 📁 Estrutura do Projeto
+## Local Development
 
-```
-backend/
-  ├── .env
-  ├── package.json
-  └── src/
-      └── server.js
-frontend/
-  ├── index.html
-  ├── css/
-  │   └── style.css
-  ├── js/
-  │   └── script.js
-  └── images/
-      └── background.png
-```
+### Prerequisites
 
----
+- Node.js 18+ installed
+- A modern web browser
 
-## 🚀 Como Executar
+### Setup
 
-### <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="20" height="20" /> Backend
+1. **Clone the repository** (or download the files)
 
-```sh
-cd backend
-npm install
-# (Opcional) Edite o .env para definir a porta:
-# PORT=8080
-npm start
-```
+2. **Install backend dependencies**:
 
-### <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="20" height="20" /> Frontend
+         cd backend
+         npm install
 
-Abra o arquivo `frontend/index.html` no navegador.
+3. **Start the backend server**:
+   
+         npm start
+   **or for development with auto-reload**:
+         
+         npm run dev
 
-> ⚠️ **Nota:** Para rodar localmente, altere a URL do WebSocket em `frontend/js/script.js` para `ws://localhost:8080`.
+4. **Serve the frontend**:
+   - Option 1: Use a local server like `http-server`:
 
----
+            cd frontend
+            npx http-server -p 3000
 
-## ⚙️ Configuração
+   - Option 2: Open `frontend/index.html` directly in your browser
 
-- Variáveis de ambiente no arquivo `.env` do backend:
-  - `PORT`: Porta do servidor WebSocket (padrão: 8080).
+5. **Access the application**:
+   - Open your browser and go to `http://localhost:3000` (or the file:// URL)
 
----
+## Features Overview
 
-## 🛠️ Funcionalidades
+### Authentication System
+- Secure login/register forms
+- Session persistence with sessionStorage
+- Input validation and error handling
+- Smooth transitions between forms
 
-- 👤 Login com nome personalizado e cor aleatória.
-- 💬 Envio e recebimento de mensagens em tempo real.
-- 🎨 Diferenciação visual entre mensagens enviadas e recebidas.
-- 📱 Interface responsiva e moderna.
+### Chat Interface
+- Real-time message delivery
+- User avatars generated from initials
+- Message timestamps
+- System notifications for user events
+- Connection status indicators
+- Auto-reconnection on connection loss
 
----
+### UI/UX Enhancements
+- Light/dark theme toggle
+- Responsive design for all devices
+- Smooth animations and transitions
+- Toast notifications for user feedback
+- Accessible design with ARIA support
 
-## 🧰 Tecnologias Utilizadas
+### Backend Features
+- WebSocket server with ping/pong heartbeat
+- Rate limiting to prevent spam
+- Client connection tracking
+- Proper error handling and logging
+- Graceful connection management
 
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="20" height="20" /> **HTML5**
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="20" height="20" /> **CSS3**
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="20" height="20" /> **JavaScript**
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="20" height="20" /> **Node.js**
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg" width="20" height="20" /> **npm**
-- 🔌 **WebSocket (`ws`)**
-- 🔒 **dotenv**
+## Browser Support
 
----
+- Chrome 60+
+- Firefox 55+
+- Safari 12+
+- Edge 79+
 
-Desenvolvido para fins de estudo e aprendizado.
+## Security Considerations
+
+- Input sanitization for XSS prevention
+- Rate limiting for spam prevention
+- Connection validation
+- Error message sanitization
+
+## Performance Optimizations
+
+- Efficient DOM operations
+- Event delegation
+- Smooth scrolling with CSS
+- Optimized WebSocket reconnection logic
+- Minimal JavaScript bundle size
+
+## Accessibility Features
+
+- ARIA labels and roles
+- Keyboard navigation support
+- Screen reader compatibility
+- High contrast support
+- Focus management
