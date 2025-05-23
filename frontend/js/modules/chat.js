@@ -67,6 +67,16 @@ function ChatModule() {
 
   // Initialize WebSocket connection
   const initializeWebSocket = () => {
+    // Se já existe uma conexão aberta, feche antes de criar outra
+    if (
+      websocket &&
+      (websocket.readyState === WebSocket.OPEN ||
+        websocket.readyState === WebSocket.CONNECTING)
+    ) {
+      websocket.onclose = null; // evita loop de reconexão
+      websocket.close();
+    }
+
     // Show connecting message
     appendSystemMessage("Conectando ao servidor...");
 
@@ -190,9 +200,16 @@ function ChatModule() {
 
   // Handle logout
   const handleLogout = () => {
-    // Close WebSocket
-    if (websocket && websocket.readyState === WebSocket.OPEN) {
-      websocket.close();
+    // Close WebSocket e limpa referência
+    if (websocket) {
+      websocket.onclose = null; // evita reconexão automática
+      if (
+        websocket.readyState === WebSocket.OPEN ||
+        websocket.readyState === WebSocket.CONNECTING
+      ) {
+        websocket.close();
+      }
+      websocket = null;
     }
 
     // Clear session
