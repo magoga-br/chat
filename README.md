@@ -4,43 +4,41 @@ Uma aplicação de chat em tempo real construída com tecnologias web puras.
 
 ## Estrutura do Projeto
 
-\`\`\`
-chat/
-├── index.html              # Página principal
-├── css/
-│   └── style.css          # Estilos da aplicação
-├── js/
-│   └── app.js             # JavaScript principal
-├── images/
-│   └── background.png     # Imagem de fundo
-├── server/
-│   ├── server.js          # Servidor WebSocket
-│   └── package.json       # Dependências do servidor
-└── README.md              # Este arquivo
-\`\`\`
+
+    chat/
+    ├── index.html              # Página principal
+    ├── css/
+    │   └── style.css          # Estilos da aplicação
+    ├── js/
+    │   └── app.js             # JavaScript principal
+    ├── images/
+    │   └── background.png     # Imagem de fundo
+    ├── server/
+    │   ├── server.js          # Servidor WebSocket
+    │   └── package.json       # Dependências do servidor
+    └── README.md              # Este arquivo
+
 
 ## Como Executar
 
 ### 1. Servidor Backend
-\`\`\`bash
-cd server
-npm install
-npm start
-\`\`\`
+
+    cd server
+    npm install
+    npm start
+
 
 ### 2. Frontend
 Abra o arquivo `index.html` em um navegador ou use um servidor local:
-\`\`\`bash
-# Usando Python
-python -m http.server 3000
 
-# Usando Node.js
-npx http-server -p 3000
-\`\`\`
+    # Usando Python
+    python -m http.server 3000
+
+    # Usando Node.js
+    npx http-server -p 3000
 
 ### 3. Acesso
 - Frontend: `http://localhost:3000`
-- Login padrão: admin / ratogordo
 
 ## Funcionalidades
 
