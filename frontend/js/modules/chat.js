@@ -70,8 +70,10 @@ function ChatModule() {
     // Show connecting message
     appendSystemMessage("Conectando ao servidor...")
 
-    // Create WebSocket connection - use environment variable or fallback
-    const wsUrl = process.env.NODE_ENV === "production" ? `wss://${window.location.host}` : "ws://localhost:8080"
+    // Create WebSocket connection - use secure connection if on https
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
+    const wsUrl =
+      window.location.hostname === "localhost" ? "ws://localhost:8080" : `${protocol}//${window.location.host}`
 
     websocket = new WebSocket(wsUrl)
 
