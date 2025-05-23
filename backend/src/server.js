@@ -1,82 +1,99 @@
-const { WebSocketServer, WebSocket } = require("ws")
-const dotenv = require("dotenv")
-const http = require("http")
+const { WebSocketServer, WebSocket } = require("ws");
+const dotenv = require("dotenv");
+const http = require("http");
+const { Pool } = require("pg");
 
 // Load environment variables
-dotenv.config()
+dotenv.config();
+
+// Configuração da conexão com o banco de dados PostgreSQL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
+
+// Exemplo de teste de conexão ao iniciar o servidor
+pool.connect((err, client, release) => {
+  if (err) {
+    console.error("Erro ao conectar ao banco de dados:", err.stack);
+  } else {
+    console.log("Conexão com o banco de dados estabelecida!");
+    release();
+  }
+});
 
 // Create HTTP server for potential future expansion
 const server = http.createServer((req, res) => {
-  res.writeHead(200, { "Content-Type": "text/plain" })
-  res.end("WebSocket Server Running")
-})
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("WebSocket Server Running");
+});
 
 // Create WebSocket server
 const wss = new WebSocketServer({
   server,
   // Add ping/pong for connection stability
   clientTracking: true,
-})
+});
 
 // Connection tracking
-const clients = new Map()
+const clients = new Map();
 
 // Interval for checking connections
-const HEARTBEAT_INTERVAL = 30000
+const HEARTBEAT_INTERVAL = 30000;
 
 // Set up WebSocket server
 wss.on("connection", (ws, req) => {
   // Set up error handling
   ws.on("error", (error) => {
-    console.error("WebSocket error:", error)
-  })
+    console.error("WebSocket error:", error);
+  });
 
   // Set up ping/pong for connection stability
-  ws.isAlive = true
+  ws.isAlive = true;
   ws.on("pong", () => {
-    ws.isAlive = true
-  })
+    ws.isAlive = true;
+  });
 
   // Generate client ID
-  const clientId = Math.random().toString(36).substring(2, 15)
-  clients.set(clientId, { ws, userId: null, userName: null })
+  const clientId = Math.random().toString(36).substring(2, 15);
+  clients.set(clientId, { ws, userId: null, userName: null });
 
   // Broadcast online count
   const broadcastOnlineCount = () => {
-    const count = wss.clients.size
-    const message = JSON.stringify({ type: "onlineCount", count })
+    const count = wss.clients.size;
+    const message = JSON.stringify({ type: "onlineCount", count });
 
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(message)
+        client.send(message);
       }
-    })
-  }
+    });
+  };
 
   // Initial online count
-  broadcastOnlineCount()
+  broadcastOnlineCount();
 
   // Handle client disconnect
   ws.on("close", () => {
     // Remove client from tracking
-    clients.delete(clientId)
+    clients.delete(clientId);
 
     // Update online count
-    broadcastOnlineCount()
+    broadcastOnlineCount();
 
-    console.log(`Client disconnected: ${clientId}`)
-  })
+    console.log(`Client disconnected: ${clientId}`);
+  });
 
   // Handle messages
   ws.on("message", (data) => {
     try {
       // Parse message
-      const message = JSON.parse(data)
+      const message = JSON.parse(data);
 
       // Store user info if first message
       if (!clients.get(clientId).userId && message.userId) {
-        clients.get(clientId).userId = message.userId
-        clients.get(clientId).userName = message.userName
+        clients.get(clientId).userId = message.userId;
+        clients.get(clientId).userName = message.userName;
 
         // Broadcast join message if not an empty message
         if (!message.content || message.content.length === 0) {
@@ -85,39 +102,39 @@ wss.on("connection", (ws, req) => {
             userName: "Servidor",
             userColor: "#f59e0b",
             content: `${message.userName} entrou no chat!`,
-          })
+          });
 
           wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
-              client.send(joinMessage)
+              client.send(joinMessage);
             }
-          })
+          });
 
-          return
+          return;
         }
       }
 
       // Validate message content
       if (!message.content || message.content.trim().length === 0) {
-        return
+        return;
       }
 
       // Rate limiting (simple implementation)
-      const client = clients.get(clientId)
+      const client = clients.get(clientId);
       if (client) {
         if (!client.lastMessageTime) {
-          client.lastMessageTime = Date.now()
-          client.messageCount = 1
+          client.lastMessageTime = Date.now();
+          client.messageCount = 1;
         } else {
-          const now = Date.now()
-          const timeDiff = now - client.lastMessageTime
+          const now = Date.now();
+          const timeDiff = now - client.lastMessageTime;
 
           // Reset counter after 10 seconds
           if (timeDiff > 10000) {
-            client.lastMessageTime = now
-            client.messageCount = 1
+            client.lastMessageTime = now;
+            client.messageCount = 1;
           } else {
-            client.messageCount++
+            client.messageCount++;
 
             // Rate limit: max 5 messages in 10 seconds
             if (client.messageCount > 5) {
@@ -125,11 +142,12 @@ wss.on("connection", (ws, req) => {
                 userId: "server",
                 userName: "Servidor",
                 userColor: "#ef4444",
-                content: "Você está enviando mensagens muito rápido. Por favor, aguarde alguns segundos.",
-              })
+                content:
+                  "Você está enviando mensagens muito rápido. Por favor, aguarde alguns segundos.",
+              });
 
-              ws.send(rateLimitMessage)
-              return
+              ws.send(rateLimitMessage);
+              return;
             }
           }
         }
@@ -138,16 +156,18 @@ wss.on("connection", (ws, req) => {
       // Broadcast message to all clients
       wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-          client.send(data.toString())
+          client.send(data.toString());
         }
-      })
+      });
 
       // Log message (in production, consider using a proper logging system)
       console.log(
-        `Message from ${message.userName}: ${message.content.substring(0, 50)}${message.content.length > 50 ? "..." : ""}`,
-      )
+        `Message from ${message.userName}: ${message.content.substring(0, 50)}${
+          message.content.length > 50 ? "..." : ""
+        }`
+      );
     } catch (error) {
-      console.error("Invalid message received:", error)
+      console.error("Invalid message received:", error);
 
       // Send error message to client
       const errorMessage = JSON.stringify({
@@ -155,35 +175,35 @@ wss.on("connection", (ws, req) => {
         userName: "Servidor",
         userColor: "#ef4444",
         content: "Erro ao processar mensagem. Por favor, tente novamente.",
-      })
+      });
 
-      ws.send(errorMessage)
+      ws.send(errorMessage);
     }
-  })
+  });
 
-  console.log(`Client connected: ${clientId}`)
-})
+  console.log(`Client connected: ${clientId}`);
+});
 
 // Heartbeat to check for dead connections
 const interval = setInterval(() => {
   wss.clients.forEach((ws) => {
     if (ws.isAlive === false) {
-      return ws.terminate()
+      return ws.terminate();
     }
 
-    ws.isAlive = false
-    ws.ping()
-  })
-}, HEARTBEAT_INTERVAL)
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, HEARTBEAT_INTERVAL);
 
 // Clean up on server close
 wss.on("close", () => {
-  clearInterval(interval)
-})
+  clearInterval(interval);
+});
 
 // Start server
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
-  console.log(`WebSocket server running on ws://localhost:${PORT}`)
-  console.log(`HTTP server running on http://localhost:${PORT}`)
-})
+  console.log(`WebSocket server running on ws://localhost:${PORT}`);
+  console.log(`HTTP server running on http://localhost:${PORT}`);
+});
