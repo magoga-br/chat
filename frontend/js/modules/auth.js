@@ -14,6 +14,17 @@ function AuthModule() {
     avatar: "",
   };
 
+  // Backend URL dinâmico
+  const getBackendUrl = () => {
+    if (
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+    ) {
+      return "http://localhost:8080";
+    }
+    return "https://chat-9rs2.onrender.com";
+  };
+
   // Initialize module
   const initialize = () => {
     // Get DOM elements
@@ -34,7 +45,7 @@ function AuthModule() {
   };
 
   // Handle login form submission
-  const handleLogin = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
 
     const username = loginInput.value.trim();
@@ -45,35 +56,40 @@ function AuthModule() {
       return;
     }
 
-    const foundUser = users.find(
-      (u) =>
-        u.name.toLowerCase() === username.toLowerCase() &&
-        u.password === password
-    );
+    try {
+      const response = await fetch(getBackendUrl() + "/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await response.json();
 
-    if (!foundUser) {
-      showNotification("Usuário ou senha incorretos", "error");
-      return;
+      if (!response.ok) {
+        showNotification(data.error || "Erro ao fazer login", "error");
+        return;
+      }
+
+      // Set user data
+      user.id = data.id;
+      user.name = data.username;
+      user.color = getRandomColor();
+      user.avatar = generateAvatar(username);
+
+      // Save to session storage
+      sessionStorage.setItem("user", JSON.stringify(user));
+
+      // Show chat interface
+      document.dispatchEvent(
+        new CustomEvent("auth:login-success", { detail: user })
+      );
+      showNotification(`Bem-vindo, ${username}!`, "success");
+    } catch (err) {
+      showNotification("Erro de conexão com o servidor", "error");
     }
-
-    // Set user data
-    user.id = crypto.randomUUID();
-    user.name = username;
-    user.color = getRandomColor();
-    user.avatar = generateAvatar(username);
-
-    // Save to session storage
-    sessionStorage.setItem("user", JSON.stringify(user));
-
-    // Show chat interface
-    document.dispatchEvent(
-      new CustomEvent("auth:login-success", { detail: user })
-    );
-    showNotification(`Bem-vindo, ${username}!`, "success");
   };
 
   // Handle register form submission
-  const handleRegister = (event) => {
+  const handleRegister = async (event) => {
     event.preventDefault();
 
     const username = registerInput.value.trim();
@@ -89,28 +105,32 @@ function AuthModule() {
       return;
     }
 
-    const userExists = users.some(
-      (u) => u.name.toLowerCase() === username.toLowerCase()
-    );
+    try {
+      const response = await fetch(getBackendUrl() + "/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await response.json();
 
-    if (userExists) {
-      showNotification("Este nome de usuário já está em uso", "error");
-      return;
+      if (!response.ok) {
+        showNotification(data.error || "Erro ao cadastrar", "error");
+        return;
+      }
+
+      // Clear form and show success
+      registerInput.value = "";
+      registerPassword.value = "";
+      showNotification(
+        "Conta criada com sucesso! Faça login para continuar.",
+        "success"
+      );
+
+      // Switch to login form
+      showLoginForm();
+    } catch (err) {
+      showNotification("Erro de conexão com o servidor", "error");
     }
-
-    // Add new user
-    users.push({ name: username, password });
-
-    // Clear form and show success
-    registerInput.value = "";
-    registerPassword.value = "";
-    showNotification(
-      "Conta criada com sucesso! Faça login para continuar.",
-      "success"
-    );
-
-    // Switch to login form
-    showLoginForm();
   };
 
   // UI helpers

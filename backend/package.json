@@ -8,7 +8,9 @@
     "dev": "nodemon src/server.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "dotenv": "^16.5.0",
+    "pg": "^8.16.0",
     "ws": "^8.18.2"
   },
   "devDependencies": {

@@ -2,6 +2,8 @@ const { WebSocketServer, WebSocket } = require("ws");
 const dotenv = require("dotenv");
 const http = require("http");
 const { Pool } = require("pg");
+const url = require("url");
+const bcrypt = require("bcryptjs");
 
 // Load environment variables
 dotenv.config();
@@ -22,10 +24,113 @@ pool.connect((err, client, release) => {
   }
 });
 
+// Garante que a tabela users existe ao iniciar o servidor
+(async () => {
+  try {
+    await pool.query(`CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      username VARCHAR(50) UNIQUE NOT NULL,
+      password VARCHAR(255) NOT NULL
+    )`);
+    console.log("Tabela 'users' verificada/criada com sucesso!");
+  } catch (e) {
+    console.error("Erro ao criar tabela 'users':", e);
+  }
+})();
+
 // Create HTTP server for potential future expansion
 const server = http.createServer((req, res) => {
+  // Adiciona CORS para permitir requisições do frontend local e produção
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
   res.writeHead(200, { "Content-Type": "text/plain" });
   res.end("WebSocket Server Running");
+});
+
+// Rotas HTTP para cadastro e login de usuário
+server.on("request", async (req, res) => {
+  const parsedUrl = url.parse(req.url, true);
+  if (req.method === "POST" && parsedUrl.pathname === "/register") {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk;
+    });
+    req.on("end", async () => {
+      try {
+        const { username, password } = JSON.parse(body);
+        if (!username || !password) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Usuário e senha obrigatórios" }));
+          return;
+        }
+        const hash = await bcrypt.hash(password, 10);
+        const result = await pool.query(
+          "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id, username",
+          [username, hash]
+        );
+        res.writeHead(201, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            id: result.rows[0].id,
+            username: result.rows[0].username,
+          })
+        );
+      } catch (err) {
+        if (err.code === "23505") {
+          res.writeHead(409, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Usuário já existe" }));
+        } else {
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Erro ao cadastrar usuário" }));
+        }
+      }
+    });
+    return;
+  }
+  if (req.method === "POST" && parsedUrl.pathname === "/login") {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk;
+    });
+    req.on("end", async () => {
+      try {
+        const { username, password } = JSON.parse(body);
+        if (!username || !password) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Usuário e senha obrigatórios" }));
+          return;
+        }
+        const result = await pool.query(
+          "SELECT id, username, password FROM users WHERE username = $1",
+          [username]
+        );
+        if (result.rows.length === 0) {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Usuário ou senha inválidos" }));
+          return;
+        }
+        const user = result.rows[0];
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Usuário ou senha inválidos" }));
+          return;
+        }
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ id: user.id, username: user.username }));
+      } catch (err) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Erro ao fazer login" }));
+      }
+    });
+    return;
+  }
 });
 
 // Create WebSocket server
