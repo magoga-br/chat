@@ -213,16 +213,49 @@ const createFilePreviewItem = (file) => {
   const div = document.createElement("div");
   div.className = "file-preview-item";
 
+  // Criar miniatura ou ícone
+  if (file.type.startsWith("image/")) {
+    const thumbnail = document.createElement("img");
+    thumbnail.className = "thumbnail";
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      thumbnail.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    div.appendChild(thumbnail);
+  } else if (file.type.startsWith("video/")) {
+    const thumbnail = document.createElement("video");
+    thumbnail.className = "thumbnail";
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      thumbnail.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    div.appendChild(thumbnail);
+  } else {
+    const fileIcon = document.createElement("div");
+    fileIcon.className = "file-icon";
+    fileIcon.innerHTML =
+      '<span class="material-symbols-outlined">description</span>';
+    div.appendChild(fileIcon);
+  }
+
   const fileName = document.createElement("span");
   fileName.className = "file-name";
-  fileName.textContent = file.name;
+  fileName.textContent =
+    file.name.length > 15 ? file.name.substring(0, 12) + "..." : file.name;
 
   const removeButton = document.createElement("button");
   removeButton.className = "preview-close";
   removeButton.innerHTML =
     '<span class="material-symbols-outlined">close</span>';
 
-  removeButton.onclick = () => {
+  removeButton.onclick = (e) => {
+    e.stopPropagation();
     const dt = new DataTransfer();
     const files = [...fileInput.files];
     const index = files.indexOf(file);
@@ -239,6 +272,17 @@ const createFilePreviewItem = (file) => {
       }
     }
   };
+
+  // Adicionar preview em tela cheia ao clicar
+  if (file.type.startsWith("image/") || file.type.startsWith("video/")) {
+    div.style.cursor = "pointer";
+    div.addEventListener("click", () => {
+      const media = div.querySelector(".thumbnail");
+      if (media) {
+        openMediaModal(media);
+      }
+    });
+  }
 
   div.appendChild(fileName);
   div.appendChild(removeButton);
