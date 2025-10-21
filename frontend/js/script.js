@@ -312,13 +312,21 @@ const handleFileSelect = (event) => {
   // Criar um DataTransfer para manter os arquivos existentes e adicionar os novos
   const dt = new DataTransfer();
 
-  // Adicionar arquivos existentes
-  if (fileInput.files.length > 0) {
-    Array.from(fileInput.files).forEach((file) => dt.items.add(file));
-  }
+  // Set para controlar arquivos únicos por nome
+  const existingFiles = new Set(
+    Array.from(fileInput.files).map((file) => file.name)
+  );
 
-  // Adicionar novos arquivos
-  Array.from(event.target.files).forEach((file) => dt.items.add(file));
+  // Adicionar arquivos existentes
+  Array.from(fileInput.files).forEach((file) => dt.items.add(file));
+
+  // Adicionar apenas arquivos novos que não existem ainda
+  Array.from(event.target.files).forEach((file) => {
+    if (!existingFiles.has(file.name)) {
+      dt.items.add(file);
+      existingFiles.add(file.name);
+    }
+  });
 
   // Atualizar o input com todos os arquivos
   fileInput.files = dt.files;
