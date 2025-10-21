@@ -141,9 +141,20 @@ body {
 
 .preview-content {
     display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 300px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.file-preview-item {
+    display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 300px;
+    background-color: #212121;
+    padding: 8px 12px;
+    border-radius: 4px;
 }
 
 .file-name {
@@ -152,6 +163,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-right: 10px;
 }
 
 .preview-close {

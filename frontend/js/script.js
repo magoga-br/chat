@@ -156,7 +156,7 @@ const handleLogin = (event) => {
   websocket.onmessage = processMessage;
 };
 
-const sendMessage = (event) => {
+const sendMessage = async (event) => {
   event.preventDefault();
 
   if (!chatInput.value.trim() && !fileInput.files.length) {
@@ -164,23 +164,37 @@ const sendMessage = (event) => {
   }
 
   if (fileInput.files.length > 0) {
-    const file = fileInput.files[0];
-    const reader = new FileReader();
+    // Envia os arquivos um por um
+    const files = Array.from(fileInput.files);
 
-    reader.onload = (e) => {
-      const message = {
-        userId: user.id,
-        userName: user.name,
-        userColor: user.color,
-        content: e.target.result,
-        type: file.type.startsWith("image/") ? "image" : "video",
+    for (const file of files) {
+      // Converte para promise para facilitar o processamento sequencial
+      const readFileAsDataURL = (file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
       };
 
-      websocket.send(JSON.stringify(message));
-      clearFileInput();
-    };
+      try {
+        const content = await readFileAsDataURL(file);
+        const message = {
+          userId: user.id,
+          userName: user.name,
+          userColor: user.color,
+          content: content,
+          type: file.type.startsWith("image/") ? "image" : "video",
+        };
 
-    reader.readAsDataURL(file);
+        websocket.send(JSON.stringify(message));
+      } catch (error) {
+        console.error("Erro ao enviar arquivo:", error);
+      }
+    }
+
+    clearFileInput();
   } else {
     const message = {
       userId: user.id,
@@ -195,11 +209,59 @@ const sendMessage = (event) => {
   }
 };
 
-const handleFileSelect = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    fileNameDisplay.textContent = file.name;
+const createFilePreviewItem = (file) => {
+  const div = document.createElement("div");
+  div.className = "file-preview-item";
+
+  const fileName = document.createElement("span");
+  fileName.className = "file-name";
+  fileName.textContent = file.name;
+
+  const removeButton = document.createElement("button");
+  removeButton.className = "preview-close";
+  removeButton.innerHTML =
+    '<span class="material-symbols-outlined">close</span>';
+
+  removeButton.onclick = () => {
+    const dt = new DataTransfer();
+    const files = [...fileInput.files];
+    const index = files.indexOf(file);
+
+    if (index !== -1) {
+      files.splice(index, 1);
+      files.forEach((file) => dt.items.add(file));
+      fileInput.files = dt.files;
+
+      if (fileInput.files.length === 0) {
+        clearFileInput();
+      } else {
+        updateFilePreview();
+      }
+    }
+  };
+
+  div.appendChild(fileName);
+  div.appendChild(removeButton);
+  return div;
+};
+
+const updateFilePreview = () => {
+  const previewContent = attachmentPreview.querySelector(".preview-content");
+  previewContent.innerHTML = "";
+
+  if (fileInput.files.length > 0) {
+    Array.from(fileInput.files).forEach((file) => {
+      previewContent.appendChild(createFilePreviewItem(file));
+    });
     attachmentPreview.style.display = "block";
+  } else {
+    attachmentPreview.style.display = "none";
+  }
+};
+
+const handleFileSelect = (event) => {
+  if (fileInput.files.length > 0) {
+    updateFilePreview();
   } else {
     attachmentPreview.style.display = "none";
   }
