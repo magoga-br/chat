@@ -8,8 +8,11 @@ const chat = document.querySelector(".chat");
 const chatForm = chat.querySelector(".chat__form");
 const chatInput = chat.querySelector(".chat__input");
 const chatMessages = chat.querySelector(".chat__messages");
-const fileInput = document.getElementById("fileInput");
+const tempFileInput = document.getElementById("tempFileInput");
 const attachmentPreview = document.getElementById("attachmentPreview");
+
+// Array para armazenar os arquivos selecionados
+let selectedFiles = [];
 const fileNameDisplay = attachmentPreview.querySelector(".file-name");
 const previewCloseButton = attachmentPreview.querySelector(".preview-close");
 
@@ -159,13 +162,13 @@ const handleLogin = (event) => {
 const sendMessage = async (event) => {
   event.preventDefault();
 
-  if (!chatInput.value.trim() && !fileInput.files.length) {
+  if (!chatInput.value.trim() && !selectedFiles.length) {
     return;
   }
 
-  if (fileInput.files.length > 0) {
+  if (selectedFiles.length > 0) {
     // Envia os arquivos um por um
-    const files = Array.from(fileInput.files);
+    const files = selectedFiles;
 
     for (const file of files) {
       // Converte para promise para facilitar o processamento sequencial
@@ -209,7 +212,7 @@ const sendMessage = async (event) => {
   }
 };
 
-const createFilePreviewItem = (file) => {
+const createFilePreviewItem = (file, index) => {
   const div = document.createElement("div");
   div.className = "file-preview-item";
 
@@ -256,20 +259,12 @@ const createFilePreviewItem = (file) => {
 
   removeButton.onclick = (e) => {
     e.stopPropagation();
-    const dt = new DataTransfer();
-    const files = [...fileInput.files];
-    const index = files.indexOf(file);
+    selectedFiles.splice(index, 1);
 
-    if (index !== -1) {
-      files.splice(index, 1);
-      files.forEach((file) => dt.items.add(file));
-      fileInput.files = dt.files;
-
-      if (fileInput.files.length === 0) {
-        clearFileInput();
-      } else {
-        updateFilePreview();
-      }
+    if (selectedFiles.length === 0) {
+      clearFileInput();
+    } else {
+      updateFilePreview();
     }
   };
 
@@ -293,9 +288,10 @@ const updateFilePreview = () => {
   const previewContent = attachmentPreview.querySelector(".preview-content");
   previewContent.innerHTML = "";
 
-  if (fileInput.files.length > 0) {
-    Array.from(fileInput.files).forEach((file) => {
-      previewContent.appendChild(createFilePreviewItem(file));
+  if (selectedFiles.length > 0) {
+    selectedFiles.forEach((file, index) => {
+      const previewItem = createFilePreviewItem(file, index);
+      previewContent.appendChild(previewItem);
     });
     attachmentPreview.style.display = "block";
   } else {
@@ -304,45 +300,30 @@ const updateFilePreview = () => {
 };
 
 const handleFileSelect = (event) => {
-  // Se o usuário cancelou a seleção, mantém os arquivos anteriores
   if (!event.target.files.length) {
     return;
   }
 
-  // Criar um DataTransfer para manter os arquivos existentes e adicionar os novos
-  const dt = new DataTransfer();
+  // Adicionar os novos arquivos ao array de arquivos selecionados
+  const newFiles = Array.from(event.target.files);
+  selectedFiles.push(...newFiles);
 
-  // Set para controlar arquivos únicos por nome
-  const existingFiles = new Set(
-    Array.from(fileInput.files).map((file) => file.name)
-  );
-
-  // Adicionar arquivos existentes
-  Array.from(fileInput.files).forEach((file) => dt.items.add(file));
-
-  // Adicionar apenas arquivos novos que não existem ainda
-  Array.from(event.target.files).forEach((file) => {
-    if (!existingFiles.has(file.name)) {
-      dt.items.add(file);
-      existingFiles.add(file.name);
-    }
-  });
-
-  // Atualizar o input com todos os arquivos
-  fileInput.files = dt.files;
+  // Limpar o input temporário para permitir selecionar o mesmo arquivo novamente
+  event.target.value = "";
 
   updateFilePreview();
 };
 
 const clearFileInput = () => {
-  fileInput.value = "";
+  selectedFiles = [];
+  tempFileInput.value = "";
   attachmentPreview.style.display = "none";
 };
 
 // Event listeners
 loginForm.addEventListener("submit", handleLogin);
 chatForm.addEventListener("submit", sendMessage);
-fileInput.addEventListener("change", handleFileSelect);
+tempFileInput.addEventListener("change", handleFileSelect);
 previewCloseButton.addEventListener("click", clearFileInput);
 modalClose.addEventListener("click", closeMediaModal);
 

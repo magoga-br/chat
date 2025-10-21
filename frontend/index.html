@@ -50,10 +50,11 @@
                 </div>
             </div>
             <form class="chat__form">
-                <input type="text" class="chat__input" placeholder="Mensagem" />
-                <input type="file" id="fileInput" class="chat__file-input" accept="image/*,video/*" multiple hidden />
+                <input type="text" class="chat__input" placeholder="Digite uma mensagem" />
+                <input type="file" id="tempFileInput" class="chat__file-input" accept="image/*,video/*" multiple
+                    hidden />
                 <button type="button" class="chat__button chat__button--attachment"
-                    onclick="document.getElementById('fileInput').click()">
+                    onclick="document.getElementById('tempFileInput').click()">
                     <span class="material-symbols-outlined">attach_file</span>
                 </button>
                 <button type="submit" class="chat__button">
