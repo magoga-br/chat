@@ -9,6 +9,9 @@ const chatForm = chat.querySelector(".chat__form");
 const chatInput = chat.querySelector(".chat__input");
 const chatMessages = chat.querySelector(".chat__messages");
 const fileInput = document.getElementById("fileInput");
+const attachmentPreview = document.getElementById("attachmentPreview");
+const fileNameDisplay = attachmentPreview.querySelector(".file-name");
+const previewCloseButton = attachmentPreview.querySelector(".preview-close");
 
 const colors = [
   "cadetblue",
@@ -142,7 +145,7 @@ const sendMessage = (event) => {
       };
 
       websocket.send(JSON.stringify(message));
-      fileInput.value = "";
+      clearFileInput();
     };
 
     reader.readAsDataURL(file);
@@ -160,5 +163,22 @@ const sendMessage = (event) => {
   }
 };
 
+const handleFileSelect = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    fileNameDisplay.textContent = file.name;
+    attachmentPreview.style.display = "block";
+  } else {
+    attachmentPreview.style.display = "none";
+  }
+};
+
+const clearFileInput = () => {
+  fileInput.value = "";
+  attachmentPreview.style.display = "none";
+};
+
 loginForm.addEventListener("submit", handleLogin);
 chatForm.addEventListener("submit", sendMessage);
+fileInput.addEventListener("change", handleFileSelect);
+previewCloseButton.addEventListener("click", clearFileInput);

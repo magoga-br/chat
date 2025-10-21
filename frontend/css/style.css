@@ -129,6 +129,44 @@ body {
     margin-right: -5px;
 }
 
+.chat__attachment-preview {
+    background-color: #191919;
+    padding: 10px 20px;
+    position: fixed;
+    bottom: 80px;
+    left: 0;
+    width: 100%;
+    border-top: 1px solid #333;
+}
+
+.preview-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 300px;
+}
+
+.file-name {
+    font-size: 0.9rem;
+    color: #f2f2f2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.preview-close {
+    background: none;
+    border: none;
+    color: #f2f2f2;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 10px;
+}
+
+.preview-close span {
+    font-size: 1.2rem;
+}
+
 .chat__messages > div {
     padding: 10px;
     width: 100%;
