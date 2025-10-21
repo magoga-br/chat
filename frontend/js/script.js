@@ -219,7 +219,7 @@ modalClose.addEventListener("click", closeMediaModal);
 
 // Fechar o modal quando clicar fora da mídia
 mediaModal.addEventListener("click", (event) => {
-  if (event.target === mediaModal) {
+  if (event.target === mediaModal || event.target === modalContent) {
     closeMediaModal();
   }
 });

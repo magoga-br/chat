@@ -226,6 +226,12 @@ body {
     width: 100%;
     height: 100%;
     padding: 20px;
+    pointer-events: none;
+}
+
+.media-modal__content img,
+.media-modal__content video {
+    pointer-events: auto;
 }
 
 .media-modal__content img,
