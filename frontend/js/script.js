@@ -304,11 +304,26 @@ const updateFilePreview = () => {
 };
 
 const handleFileSelect = (event) => {
-  if (fileInput.files.length > 0) {
-    updateFilePreview();
-  } else {
-    attachmentPreview.style.display = "none";
+  // Se o usuário cancelou a seleção, mantém os arquivos anteriores
+  if (!event.target.files.length) {
+    return;
   }
+
+  // Criar um DataTransfer para manter os arquivos existentes e adicionar os novos
+  const dt = new DataTransfer();
+
+  // Adicionar arquivos existentes
+  if (fileInput.files.length > 0) {
+    Array.from(fileInput.files).forEach((file) => dt.items.add(file));
+  }
+
+  // Adicionar novos arquivos
+  Array.from(event.target.files).forEach((file) => dt.items.add(file));
+
+  // Atualizar o input com todos os arquivos
+  fileInput.files = dt.files;
+
+  updateFilePreview();
 };
 
 const clearFileInput = () => {
