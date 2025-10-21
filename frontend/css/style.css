@@ -12,7 +12,7 @@
 }
 
 body {
-    background: url("/frontend/images/background.png");
+    background: url("../images/background.png");
     color: #f2f2f2;
 }
 
