@@ -83,7 +83,11 @@ const handleLogin = (event) => {
   login.style.display = "none";
   chat.style.display = "flex";
 
-  websocket = new WebSocket("ws://localhost:8080");
+  const WS_URL =
+    location.hostname === "localhost"
+      ? "ws://localhost:8080"
+      : "wss://chat-9rs2.onrender.com/";
+  websocket = new WebSocket(WS_URL);
   websocket.onmessage = processMessage;
 };
 
