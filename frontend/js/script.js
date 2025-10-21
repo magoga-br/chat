@@ -13,6 +13,11 @@ const attachmentPreview = document.getElementById("attachmentPreview");
 const fileNameDisplay = attachmentPreview.querySelector(".file-name");
 const previewCloseButton = attachmentPreview.querySelector(".preview-close");
 
+// Modal elements
+const mediaModal = document.getElementById("mediaModal");
+const modalContent = mediaModal.querySelector(".media-modal__content");
+const modalClose = mediaModal.querySelector(".media-modal__close");
+
 const colors = [
   "cadetblue",
   "darkgoldenrod",
@@ -26,6 +31,29 @@ const user = { id: "", name: "", color: "" };
 
 let websocket;
 
+const openMediaModal = (mediaElement) => {
+  const clonedMedia = mediaElement.cloneNode(true);
+  modalContent.innerHTML = "";
+  modalContent.appendChild(clonedMedia);
+
+  if (clonedMedia.tagName === "VIDEO") {
+    clonedMedia.controls = true;
+  }
+
+  mediaModal.classList.add("active");
+};
+
+const closeMediaModal = () => {
+  mediaModal.classList.remove("active");
+  modalContent.innerHTML = "";
+};
+
+const handleMediaClick = (event) => {
+  if (event.target.tagName === "IMG" || event.target.tagName === "VIDEO") {
+    openMediaModal(event.target);
+  }
+};
+
 const createMessageSelfElement = (content, type = "text") => {
   const div = document.createElement("div");
   div.classList.add("message--self");
@@ -36,12 +64,14 @@ const createMessageSelfElement = (content, type = "text") => {
     const img = document.createElement("img");
     img.src = content;
     img.style.maxWidth = "100%";
+    img.addEventListener("click", handleMediaClick);
     div.appendChild(img);
   } else if (type === "video") {
     const video = document.createElement("video");
     video.src = content;
     video.controls = true;
     video.style.maxWidth = "100%";
+    video.addEventListener("click", handleMediaClick);
     div.appendChild(video);
   }
 
@@ -69,12 +99,14 @@ const createMessageOtherElement = (
     const img = document.createElement("img");
     img.src = content;
     img.style.maxWidth = "100%";
+    img.addEventListener("click", handleMediaClick);
     div.appendChild(img);
   } else if (type === "video") {
     const video = document.createElement("video");
     video.src = content;
     video.controls = true;
     video.style.maxWidth = "100%";
+    video.addEventListener("click", handleMediaClick);
     div.appendChild(video);
   }
 
@@ -178,7 +210,16 @@ const clearFileInput = () => {
   attachmentPreview.style.display = "none";
 };
 
+// Event listeners
 loginForm.addEventListener("submit", handleLogin);
 chatForm.addEventListener("submit", sendMessage);
 fileInput.addEventListener("change", handleFileSelect);
 previewCloseButton.addEventListener("click", clearFileInput);
+modalClose.addEventListener("click", closeMediaModal);
+
+// Fechar o modal quando clicar fora da mídia
+mediaModal.addEventListener("click", (event) => {
+  if (event.target === mediaModal) {
+    closeMediaModal();
+  }
+});
