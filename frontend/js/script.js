@@ -8,6 +8,7 @@ const chat = document.querySelector(".chat");
 const chatForm = chat.querySelector(".chat__form");
 const chatInput = chat.querySelector(".chat__input");
 const chatMessages = chat.querySelector(".chat__messages");
+const fileInput = document.getElementById("fileInput");
 
 const colors = [
   "cadetblue",
@@ -22,28 +23,57 @@ const user = { id: "", name: "", color: "" };
 
 let websocket;
 
-const createMessageSelfElement = (content) => {
+const createMessageSelfElement = (content, type = "text") => {
   const div = document.createElement("div");
-
   div.classList.add("message--self");
-  div.innerHTML = content;
+
+  if (type === "text") {
+    div.innerHTML = content;
+  } else if (type === "image") {
+    const img = document.createElement("img");
+    img.src = content;
+    img.style.maxWidth = "100%";
+    div.appendChild(img);
+  } else if (type === "video") {
+    const video = document.createElement("video");
+    video.src = content;
+    video.controls = true;
+    video.style.maxWidth = "100%";
+    div.appendChild(video);
+  }
 
   return div;
 };
 
-const createMessageOtherElement = (content, sender, senderColor) => {
+const createMessageOtherElement = (
+  content,
+  sender,
+  senderColor,
+  type = "text"
+) => {
   const div = document.createElement("div");
   const span = document.createElement("span");
 
   div.classList.add("message--other");
-
   span.classList.add("message--sender");
   span.style.color = senderColor;
-
+  span.innerHTML = sender;
   div.appendChild(span);
 
-  span.innerHTML = sender;
-  div.innerHTML += content;
+  if (type === "text") {
+    div.innerHTML += content;
+  } else if (type === "image") {
+    const img = document.createElement("img");
+    img.src = content;
+    img.style.maxWidth = "100%";
+    div.appendChild(img);
+  } else if (type === "video") {
+    const video = document.createElement("video");
+    video.src = content;
+    video.controls = true;
+    video.style.maxWidth = "100%";
+    div.appendChild(video);
+  }
 
   return div;
 };
@@ -61,12 +91,12 @@ const scrollScreen = () => {
 };
 
 const processMessage = ({ data }) => {
-  const { userId, userName, userColor, content } = JSON.parse(data);
+  const { userId, userName, userColor, content, type } = JSON.parse(data);
 
   const message =
     userId == user.id
-      ? createMessageSelfElement(content)
-      : createMessageOtherElement(content, userName, userColor);
+      ? createMessageSelfElement(content, type)
+      : createMessageOtherElement(content, userName, userColor, type);
 
   chatMessages.appendChild(message);
 
@@ -94,16 +124,40 @@ const handleLogin = (event) => {
 const sendMessage = (event) => {
   event.preventDefault();
 
-  const message = {
-    userId: user.id,
-    userName: user.name,
-    userColor: user.color,
-    content: chatInput.value,
-  };
+  if (!chatInput.value.trim() && !fileInput.files.length) {
+    return;
+  }
 
-  websocket.send(JSON.stringify(message));
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    const reader = new FileReader();
 
-  chatInput.value = "";
+    reader.onload = (e) => {
+      const message = {
+        userId: user.id,
+        userName: user.name,
+        userColor: user.color,
+        content: e.target.result,
+        type: file.type.startsWith("image/") ? "image" : "video",
+      };
+
+      websocket.send(JSON.stringify(message));
+      fileInput.value = "";
+    };
+
+    reader.readAsDataURL(file);
+  } else {
+    const message = {
+      userId: user.id,
+      userName: user.name,
+      userColor: user.color,
+      content: chatInput.value,
+      type: "text",
+    };
+
+    websocket.send(JSON.stringify(message));
+    chatInput.value = "";
+  }
 };
 
 loginForm.addEventListener("submit", handleLogin);

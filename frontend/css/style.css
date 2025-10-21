@@ -125,6 +125,10 @@ body {
     font-size: 1.8rem;
 }
 
+.chat__button--attachment {
+    margin-right: -5px;
+}
+
 .chat__messages > div {
     padding: 10px;
     width: 100%;
@@ -154,4 +158,12 @@ body {
     margin-bottom: 15px;
     font-weight: 700;
     color: cadetblue;
+}
+
+.message--self img,
+.message--other img,
+.message--self video,
+.message--other video {
+    border-radius: 5px;
+    margin-top: 5px;
 }

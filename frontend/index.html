@@ -35,7 +35,12 @@
             </section>
 
             <form class="chat__form">
-                <input type="text" class="chat__input" placeholder="Digite uma mensagem" required />
+                <input type="text" class="chat__input" placeholder="Digite uma mensagem" />
+                <input type="file" id="fileInput" class="chat__file-input" accept="image/*,video/*" hidden />
+                <button type="button" class="chat__button chat__button--attachment"
+                    onclick="document.getElementById('fileInput').click()">
+                    <span class="material-symbols-outlined">attach_file</span>
+                </button>
                 <button type="submit" class="chat__button">
                     <span class="material-symbols-outlined">send</span>
                 </button>
